@@ -1,0 +1,85 @@
+{% extends 'reminder/base.html' %}
+{% block title %}{{ note }}{% endblock %}
+{% block notes_active %}active{% endblock %}
+
+{% block body %}
+<div class="container-fluid lists-container">
+
+    <div class="row">
+
+        <!-- Left Note Info -->
+        <div class="col-sm-4 col-md-3">
+            <div class="panel panel-default">
+                <div class="panel-body">
+
+                    <h1 class="color:red">{{ note.title }} </h1><hr><h3>Reminder at<br><small>{{ note.reminder_date }}</small></h3>
+                    <h3>Created on<br><small>{{ note.create_date }}</small></h3>
+
+
+                </div>
+            </div>
+        </div>
+
+        <!-- Right List Info -->
+        <div class="col-sm-8 col-md-9">
+
+            <ul class="nav nav-pills" style="margin-bottom: 10px;">
+                <li role="presentation" class="active"><a href="{% url 'reminder:detail' note.id %}">View All</a></li>
+                <li role="presentation"><a href="{% url 'reminder:create_list' note.id %}">Add New List</a></li>
+            </ul>
+
+            <div class="panel panel-default">
+                <div class="panel-body">
+
+                    <h3>All Lists</h3>
+
+                    {% if error_message %}
+                        <p><strong>{{ error_message }}</strong></p>
+                    {% endif %}
+
+                    <table class="table">
+                        <thead>
+                        <tr>
+                            <th>Item</th>
+                            <th>Important</th>
+                            <th>Actions</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {% for list in note.list_set.all %}
+                            <tr>
+                                <td class="text-primary"><b><big>{{ list.item }}</big></b></td>
+                             <!--   <td>
+                                    <a target="_blank" href="{{ list.audio_file.url }}">
+                                        <button type="button" class="btn btn-success btn-xs">
+                                            <span class="glyphicon glyphicon-play"></span>&nbsp; Play
+                                        </button>
+                                    </a>
+                                </td>-->
+                                <td>
+                                    <a href="{% url 'reminder:important' list.id %}" class="btn-important"><span class="glyphicon glyphicon-star {% if list.is_important %}active{% endif %}"></span></a>
+                                </td>
+                                <td>
+                                    <form action="{% url 'reminder:delete_list' note.id list.id %}" method="post" style="display: inline;">
+                                        {% csrf_token %}
+                                        <input type="hidden" name="list_id" value="{{ list.id }}" />
+                                        <button type="submit" class="btn btn-danger btn-xs">
+                                            <span class="glyphicon glyphicon-trash"></span>
+                                        </button>
+                                    </form>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+{% endblock %}

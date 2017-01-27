@@ -1,0 +1,54 @@
+{% extends 'reminder/base.html' %}
+{% block title %}Add a New List{% endblock %}
+{% block notes_active %}active{% endblock %}
+
+{% block body %}
+<div class="container-fluid">
+
+    <div class="row">
+
+        <!-- Left Note Info -->
+        <div class="col-sm-4 col-md-3">
+            <div class="panel panel-default">
+                <div class="panel-body">
+                    <h1>{{ note.title }} <hr><small>{{ note.create_date }}</small></h1><hr>
+                    <h2>reminded at <small>{{ note.reminder_date}}</small></h2>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right List Info -->
+        <div class="col-sm-8 col-md-9">
+
+            <ul class="nav nav-pills" style="margin-bottom: 10px;">
+                <li role="presentation"><a href="{% url 'reminder:detail' note.id %}">View All</a></li>
+                <li role="presentation" class="active"><a href="{% url 'reminder:create_list' note.id %}">Add New List</a></li>
+            </ul>
+
+            <div class="panel panel-default">
+                <div class="panel-body">
+                    <h3>Add a New List</h3>
+                    {% if error_message %}
+                        <p><strong>{{ error_message }}</strong></p>
+                    {% endif %}
+                    <form class="form-horizontal" role="form" action="" method="post" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        <input type="hidden" name="note" value="{{ note }}">
+                        {% include 'reminder/form_template.html' %}
+                        <div class="form-group">
+                            <div class="col-sm-offset-2 col-sm-10">
+                                <button type="submit" class="btn btn-success">Submit</button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+{% endblock %}
+

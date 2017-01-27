@@ -1,0 +1,53 @@
+{% extends 'reminder/base.html' %}
+{% block title %}All lists{% endblock %}
+{% block lists_active %}active{% endblock %}
+
+{% block body %}
+<div class="container-fluid lists-container">
+
+    <div class="row">
+        <div class="col-sm-12">
+            <ul class="nav nav-pills" style="margin-bottom: 10px;">
+                <li role="presentation" {% if filter_by == 'all' %}class="active"{% endif %}><a href="{% url 'reminder:lists' 'all' %}">View All</a></li>
+                <li role="presentation" {% if filter_by == 'important' %}class="active"{% endif %}><a href="{% url 'reminder:lists' 'important' %}">important</a></li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="row">
+
+        <div class="col-sm-12">
+
+            <div class="panel panel-default">
+                <div class="panel-body">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>list Item</th>
+                                <th>Note</th>
+                                <th>important</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for list in list_list %}
+                                <tr>
+                                    <td>{{ list.item }}</td>
+                                    <td>
+                                        <a href="{% url 'reminder:detail' list.note.id %}">{{ list.note.title }}</a>
+                                    </td>
+                                    <td>
+                                        <a href="{% url 'reminder:important' list.id %}" class="btn-important"><span class="glyphicon glyphicon-star {% if list.is_important %}active{% endif %}"></span></a>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+{% endblock %}
