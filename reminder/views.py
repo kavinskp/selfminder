@@ -1,20 +1,20 @@
 from django.contrib.auth import authenticate, login
 from django.contrib.auth import logout
 from django.http import JsonResponse
-from django.shortcuts import render, get_object_or_404
+from django.shortcuts import render, get_object_or_404,redirect
 from django.db.models import Q
-from .forms import NoteForm, ListForm, UserForm
-from .models import Note, List
+from .forms import NoteForm, ListForm, UserForm #ProfileForm
+from .models import Note, List #Author
+from django.contrib.auth.decorators import login_required
+from django.utils.translation import ugettext, ugettext_lazy as _
+from django.db import transaction
+from django.contrib import messages
 from django.core.urlresolvers import reverse_lazy
 from django.contrib.admin import widgets
 
 # AUDIO_FILE_TYPES = ['wav', 'mp3', 'ogg']
 # IMAGE_FILE_TYPES = ['png', 'jpg', 'jpeg']
-def profile_user(request):
-    if not request.user.is_authenticated():
-        return render(request, 'reminder/login.html')
-    else:
-        return render(request,'reminder/login.html')
+
 
 def create_note(request):
     if not request.user.is_authenticated():
@@ -116,6 +116,27 @@ def important(request, list_id):
    # else:
     #return JsonResponse({'success': True})
 
+#
+# @login_required
+# @transaction.atomic
+# def update_profile(request):
+#     if request.method == 'POST':
+#         user_form = UserForm(request.POST, instance=request.user)
+#         profile_form = ProfileForm(request.POST, instance=request.user.profile)
+#         if user_form.is_valid() and profile_form.is_valid():
+#             user_form.save()
+#             profile_form.save()
+#             messages.success(request, _('Your profile was successfully updated!'))
+#             return redirect('profile_user')
+#         else:
+#             messages.error(request, _('Please correct the error below.'))
+#     else:
+#         user_form = UserForm(instance=request.user)
+#         profile_form = ProfileForm(instance=request.user.profile)
+#     return render(request, 'reminder/profile.html', {
+#         'user_form': user_form,
+#         'profile_form': profile_form
+#     })
 
 def important_note(request, note_id):
     note = get_object_or_404(Note, pk=note_id)
@@ -124,8 +145,8 @@ def important_note(request, note_id):
     else:
             note.is_important = True
     note.save()
-    note = Note.objects.filter(request.user)
-    return render(request, 'reminder/index.html', {'notes': note})
+    notes = Note.objects.filter(user=request.user)
+    return render(request, 'reminder/index.html', {'notes': notes})
 
 
 def index(request):
@@ -133,20 +154,21 @@ def index(request):
         return render(request, 'reminder/login.html')
     else:
         notes = Note.objects.filter(user=request.user)
-        list_results = List.objects.filter(note=notes)
+        list_results = List.objects.all()
         query = request.GET.get("q")
         if query:
-            notes = notes.filter(
+            n = notes.filter(
                 Q(title__icontains=query)
             ).distinct()
-            list_results = list_results.filter(
+            l = list_results.filter(
                 Q(item__icontains=query)
             ).distinct()
-            if notes is None:
-                return render(request,'reminder/index.html',{'error_message': 'No mated Notes Or Lists'})
+            if not n and not l:
+                return render(request,'reminder/index.html',{'error': 'No Match found', 'query':'yes'})
             return render(request, 'reminder/index.html', {
-                'notes': notes,
-                'lists': list_results,
+                'notes': n,
+                'lists': l,
+                'query': 'yes',
 
             })
         else:

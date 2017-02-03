@@ -1,5 +1,7 @@
 {% extends 'reminder/base.html' %}
-{% block title %}All lists{% endblock %}
+{% block title %}
+{% if filter_by == 'all' %} All lists  {% else%} Important{% endif %}
+{% endblock %}
 {% block lists_active %}active{% endblock %}
 
 {% block body %}

@@ -1,8 +1,9 @@
 from django import forms
 from django.contrib.auth.models import User
+
 from django.contrib.admin import widgets
 
-from .models import Note, List
+from .models import Note, List# Author
 
 
 class NoteForm(forms.ModelForm):
@@ -28,3 +29,15 @@ class UserForm(forms.ModelForm):
     class Meta:
         model = User
         fields = ['username', 'email', 'password']
+#
+#
+# class UserForm(forms.ModelForm):
+#     class Meta:
+#         model = User
+#         fields = ('first_name', 'last_name', 'email')
+
+# class ProfileForm(forms.ModelForm):
+#
+#     class Meta:
+#         model = Author
+#         fields = ('email', 'phone')
