@@ -1,0 +1,61 @@
+{% extends 'reminder/base_visitor.html' %}
+
+
+{% block title %}SelfMinder | Login{% endblock %}
+
+{% block body %}
+
+  <div class="container-fluid">
+
+    <div class="row">
+        <div class="col-sm-12 col-md-6">
+            <div class="panel panel-default">
+                <div class="panel-body">
+                    <form method="post">
+                        <h1>Login</h1>
+                        {% csrf_token %}
+                        {% if error == 'emailerror' %}
+                            <div role="alert" class="alert alert-danger alert-dismissible fade in">
+                                <button aria-label="Close" data-dismiss="alert" class="close" type="button"><span
+                                        aria-hidden="true">×</span>
+                                </button>
+                                <strong> Email ID is not registered! </strong>
+                            </div>
+                        {% endif %}
+                        <div>
+                            <input class="form-control" maxlength="256" name="email" type="text" placeholder="Email"
+                                   required/>
+                        </div>
+                        <div>
+                            <input class="form-control" name="password" type="password" placeholder="Password"
+                                   required/>
+                        </div>
+                        <div class="checkbox">
+                            <label class="">
+                                    <input class="flat" type="checkbox" name="remember_me"
+                                           style="position: absolute;">
+                                Remember me
+                            </label>
+                        </div>
+                        <div>
+                            <button type="submit" class="btn btn-success" name="login" value="login">Log in</button>
+                            <a class="reset_pass" href="/user/password/reset/">Lost your password?</a>
+                        </div>
+
+                        <div class="clearfix"></div>
+
+                        <div class="separator">
+                            <p class="change_link">New to site?
+                                <a href="/signup/" class="to_register"> Create Account </a>
+                            </p>
+
+                            <div class="clearfix"></div>
+                            <br/>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+  </div>
+{% endblock %}

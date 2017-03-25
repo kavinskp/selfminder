@@ -23,6 +23,11 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
 ]
 
+LOGIN_URL = '/login'
+LOGIN_REDIRECT_URL = '/dashboard/'
+
+
+
 MIDDLEWARE_CLASSES = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
@@ -33,6 +38,16 @@ MIDDLEWARE_CLASSES = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
+
+EMAIL_USE_TLS = True
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 25
+EMAIL_HOST_USER = 'selfmindertool@gmail.com'  # your gmail id for testing purpose
+EMAIL_HOST_PASSWORD = 'Selfminder@#1234'  # gmail id password
+DEFAULT_FROM_EMAIL = 'selfmindertool@gmail.com'  # your gmail id for testing purpose
+SERVER_EMAIL = 'selfmindertool@gmail.com'  # your gmail id for testing purpose
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+CURRENT_HOST_NAME = 'http://127.0.0.1:8000/'
 
 ROOT_URLCONF = 'selfminder.urls'
 
@@ -87,6 +102,6 @@ USE_TZ = True
 
 # Static files (CSS, JavaScript, Images)
 STATIC_URL = '/static/'
-
-MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+STATIC_ROOT = os.path.join(BASE_DIR, "static/")
+MEDIA_ROOT = os.path.join(BASE_DIR, "media/")
 MEDIA_URL = '/media/'

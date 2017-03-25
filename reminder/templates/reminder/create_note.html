@@ -16,7 +16,15 @@
                     {% endif %}
                     <form class="form-horizontal" role="form" action="" method="post" enctype="multipart/form-data">
                         {% csrf_token %}
-                        {% include 'reminder/form_template.html' %}
+                          {% include 'reminder/form_template.html' %}
+{#                       <div class="form-group">#}
+{#                            <div class="control-label" for="title">Title</div>#}
+{#                            <input class="form-control" id="title" name="title" placeholder="Note's Title" type="text"/>#}
+{#                        </div>#}
+{#                        <div class="form-group">#}
+{#                            <div class="control-label" for="date">Reminder Date</div>#}
+{#                            <input class="form-control" id="date" name="reminder_date" placeholder="YYYY-MM-DD" type="text"/>#}
+{#                        </div>#}
                         <div class="form-group">
                             <div class="col-sm-offset-2 col-sm-10">
                                 <button type="submit" class="btn btn-success">Submit</button>

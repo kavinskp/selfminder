@@ -1,10 +1,19 @@
+import hashlib
+from datetime import date
+
+from datetime import timedelta
+from django import forms
 from django.contrib.auth import authenticate, login
 from django.contrib.auth import logout
+from django.http import Http404
 from django.http import JsonResponse
 from django.shortcuts import render, get_object_or_404,redirect
 from django.db.models import Q
-from .forms import NoteForm, ListForm, UserForm #ProfileForm
-from .models import Note, List #Author
+from django.utils import timezone
+from django.utils.crypto import random
+
+from .forms import NoteForm, ListForm, Signup_form,Login_Form,LoginForm
+from .models import Note, List, Owner, CustomUser
 from django.contrib.auth.decorators import login_required
 from django.utils.translation import ugettext, ugettext_lazy as _
 from django.db import transaction
@@ -12,8 +21,51 @@ from django.contrib import messages
 from django.core.urlresolvers import reverse_lazy
 from django.contrib.admin import widgets
 
+import hashlib
+import re
+from pprint import pprint
+
+from django.contrib.auth import login, authenticate, logout
+from django.contrib.auth.decorators import login_required
+from django.contrib.auth.models import Group
+from django.contrib.auth.views import redirect_to_login
+from django.http import Http404
+from django.http import JsonResponse
+from django.shortcuts import render, redirect
+from django import forms
+from django.utils import timezone
+from django.http import HttpResponseRedirect
+from django.utils.crypto import random
+from datetime import date, timedelta
+from django.views.generic import UpdateView
+
+
 # AUDIO_FILE_TYPES = ['wav', 'mp3', 'ogg']
 # IMAGE_FILE_TYPES = ['png', 'jpg', 'jpeg']
+
+@login_required
+def userprofile(request, username):
+    try:
+        user = Owner.objects.get(username=username)
+        idnumber = user.user_id
+        custuser = Owner.objects.get(id=idnumber)
+        obj = Owner.objects.get(user=request.user)
+        if obj.username != username:
+            return render(request, "401.html")
+    except:
+        return render(request, "404.html")
+    return render(request, "reminder/profilepage.html", {'user': user, 'custuser': custuser})
+
+
+@login_required()
+def edit_profile(request):
+    user=request.user
+    user_instance = Owner.objects.get(user=user)
+
+
+
+
+
 
 
 def create_note(request):
@@ -94,7 +146,7 @@ def delete_list(request, note_id, list_id):
 
 def detail(request, note_id):
     if not request.user.is_authenticated():
-        return render(request, 'reminder/login.html')
+        return render(request, 'registration/login_user.html')
     else:
         user = request.user
         note = get_object_or_404(Note, pk=note_id)
@@ -122,7 +174,7 @@ def important(request, list_id):
 # def update_profile(request):
 #     if request.method == 'POST':
 #         user_form = UserForm(request.POST, instance=request.user)
-#         profile_form = ProfileForm(request.POST, instance=request.user.profile)
+#         profile_form = ProfileForm(request.POST, instance=request.user)
 #         if user_form.is_valid() and profile_form.is_valid():
 #             user_form.save()
 #             profile_form.save()
@@ -132,7 +184,7 @@ def important(request, list_id):
 #             messages.error(request, _('Please correct the error below.'))
 #     else:
 #         user_form = UserForm(instance=request.user)
-#         profile_form = ProfileForm(instance=request.user.profile)
+#         profile_form = ProfileForm(instance=request.user)
 #     return render(request, 'reminder/profile.html', {
 #         'user_form': user_form,
 #         'profile_form': profile_form
@@ -151,9 +203,10 @@ def important_note(request, note_id):
 
 def index(request):
     if not request.user.is_authenticated():
-        return render(request, 'reminder/login.html')
+        return render(request, 'registration/login_user.html')
     else:
-        notes = Note.objects.filter(user=request.user)
+        owner=Owner.objects.get(user=request.user)
+        notes = Note.objects.filter(user=owner)
         list_results = List.objects.all()
         query = request.GET.get("q")
         if query:
@@ -177,22 +230,25 @@ def index(request):
 
 def logout_user(request):
     logout(request)
-    form = UserForm(request.POST or None)
+    form = Login_Form(request.POST or None)
     context = {
         'form': form,
     }
-    return render(request, 'reminder/login.html', context)
+    return render(request, 'registration/login_user.html', context)
+
+
 
 
 def login_user(request):
     if request.method == "POST":
         username = request.POST['username']
         password = request.POST['password']
-        user = authenticate(username=username, password=password)
+        user = authenticate(email=username, password=password)
         if user is not None:
             if user.is_active:
                 login(request, user)
-                notes = Note.objects.filter(user=request.user)
+                cusowner=CustomUser.objects.get(user=request.user)
+                notes = Note.objects.filter(user=cusowner.owner)
                 return render(request, 'reminder/index.html', {'notes': notes})
             else:
                 return render(request, 'reminder/login.html', {'error_message': 'Your account has been disabled'})
@@ -202,7 +258,7 @@ def login_user(request):
 
 
 def register(request):
-    form = UserForm(request.POST or None)
+    form = Signup_form(request.POST or None)
     if form.is_valid():
         user = form.save(commit=False)
         username = form.cleaned_data['username']
@@ -218,7 +274,118 @@ def register(request):
     context = {
         'form': form,
     }
-    return render(request, 'reminder/register.html', context)
+    return render(request, 'reminder/signup.html', context)
+
+
+def signup(request):
+    form1 = Signup_form()
+    error = 'success'
+    if request.method == 'POST':
+        form1 = Signup_form(request.POST, request.FILES)
+        if form1.is_valid():
+            try:
+                password1 = form1.cleaned_data['password1']
+                password2 = form1.cleaned_data['password2']
+                if password1 and password2 and password1 != password2:
+                    raise forms.ValidationError("Passwords don't match")
+                # temp = form1.save(commit=False)
+                email = form1.cleaned_data['email']
+                password = form1.cleaned_data['password2']
+                random_number_string = str(random.random())
+                random_number_string = random_number_string.encode('utf-8')
+                salt = hashlib.sha1(random_number_string).hexdigest()[:5]
+                salt = salt.encode('utf-8')
+                usernamesalt = email
+                usernamesalt = usernamesalt.encode('utf8')
+                key = hashlib.sha1(salt + usernamesalt)
+                key = key.hexdigest()
+                activation_key = key
+                key_expires = timezone.now() + timezone.timedelta(days=2)
+
+                user = CustomUser.objects.create_user(email=email,
+                                                      password=password,
+                                                      activation_key=activation_key,
+                                                      key_expires=key_expires
+                                                      )
+
+                datas = {}
+                datas['email'] = email
+                datas['activation_key'] = key
+
+                form1.sendEmail(datas)
+
+                msg = {
+                    'page_title': 'SelfMinder | Signup success',
+                    'title': 'Please Verify Email-ID',
+                    'description': 'An email has been sent your mail ID.Please verify it to proceed',
+                }
+                return render(request, 'reminder/signup_success.html', {'message': msg})
+            except forms.ValidationError:
+                error = 'pwd_Owner'
+    return render(request, "reminder/register.html", {'form1': form1})
+
+def activation(request, key):
+    activation_expired = False
+    already_active = False
+    try:
+        user = CustomUser.objects.get(activation_key=key)
+        user.is_active=True
+    except CustomUser.DoesNotExist:
+        msg = {
+            'page_title': 'Expired Link',
+            'title': 'Link Expired',
+            'description': 'Please check whether you are clicking the latest sent to your mail'
+        }
+        return render(request, 'reminder/signup_success.html', {'message': msg})
+
+    print(vars(user))
+    # if user.is_verified == False:
+    #     if timezone.now() > user.key_expires:
+    #         activation_expired = True  # Display : offer to user to have another activation link (a link in template sending to the view new_activation_link)
+    #         id_user = user.id
+    #     else:  # Activation successful
+    #       #  user.is_verified = True
+    #         user.save()
+
+    # If user is already active, simply display error message
+   # else:
+    already_active = True  # Display : error message
+    return render(request, 'registration/activated_mail.html', locals())
+
+
+def new_activation_link(request, user_id):
+    form = Signup_form()
+    try:
+        user = CustomUser.objects.get(id=user_id)
+    except CustomUser.DoesNotExist:
+        raise Http404
+    if user is not None and not user.is_verified:
+        random_number_string = str(random.random())
+        random_number_string = random_number_string.encode('utf-8')
+        salt = hashlib.sha1(random_number_string).hexdigest()[:5]
+        salt = salt.encode('utf-8')
+        usernamesalt = user.email
+        usernamesalt = usernamesalt.encode('utf8')
+
+        key = hashlib.sha1(salt + usernamesalt)
+        key = key.hexdigest()
+        user.activation_key = key
+        user.key_expires = timezone.now() + timezone.timedelta(days=2)
+        user.save()
+
+        datas = {}
+        datas['email'] = user.email
+        datas['activation_key'] = key
+
+        form.sendEmail(datas)
+    msg = {
+        'page_title': 'SelfMinder | Re-sent conformation mail',
+        'title': 'Email re-sent',
+        'description': 'An email has been sent your mail ID.Please verify it to proceed',
+    }
+    return render(request, 'reminder/signup_success.html', {'message': msg})
+
+
 
 
 def lists(request, filter_by):
@@ -239,3 +406,112 @@ def lists(request, filter_by):
             'list_list': users_lists,
             'filter_by': filter_by,
         })
+
+
+
+def userlogin(request):
+    login_form = LoginForm()
+    error = None
+    if request.method == 'POST':
+       # request.session.clear()
+       # request.session['last_visit'] = None
+      #  request.session['logged_first'] = True
+        login_form = LoginForm(request.POST)
+        if login_form.is_valid():
+            try:
+                email = login_form.cleaned_data['email']
+                password = login_form.cleaned_data['password']
+                if not CustomUser.objects.get(email=email):
+                    raise forms.ValidationError("Email ID is not registered!")
+
+                user = authenticate(email=email, password=password)
+                print('****')
+
+                if user is not None:
+                    obj = CustomUser.objects.get(email=email)
+                    is_verified_user = getattr(obj, 'is_verified')
+                   # is_filled_data = getattr(obj, 'has_filled_data')
+                   # is_staff_acc = getattr(obj, 'is_staff_account')
+                    print('is_verified_user=' + str(is_verified_user))
+                    # app = CustomUser.objects.filter(email=user)
+                    # print(app.values('is_approved') == False)
+                    # if (not is_filled_data):
+                    #     # return getdetails(request, is_staff_acc, user)
+                    #     request.session['is_staff_acc'] = is_staff_acc
+                    #     request.session['user_name'] = email
+                    #     return redirect('getdetails')
+
+                  #  elif is_verified_user:
+                    if Owner.objects.filter(user=user):
+                       # request.session['user_type'] = 'Owner'
+                       # request.session['user_name'] = str(Owner.objects.get(user=user))
+                        if user.is_active:
+                            login(request, user)
+                            cusowner = CustomUser.objects.get(user=request.user)
+                            notes = Note.objects.filter(user=cusowner.owner)
+                            return render(request, 'reminder/index.html', {'notes': notes})
+                       #     for each in Owner.objects.filter(user=user):
+                                # request.session['profile_pic'] = str(each.avatar)
+                    #            request.session['roll_no'] = str(each.roll_no)
+                    #            request.session['gender'] = str(each.gender)
+                             #   request.session['profile_pic'] = str(each.avatar)
+                        # print('user=' + str(request.session['gender']))
+                        last_login = ''
+                        #for obj in CustomUser.objects.filter(email=str(user)):
+                        #    last_login = obj.last_login
+                        # print('last_visit=' + str(last_login))
+                        #if last_login:
+                        #     request.session['last_visit'] = last_login.strftime("%d %B %Y at %l:%M:%S %p")
+                        #     today = str(date.today())
+                        #     # print('today='+str(today))
+                        #     yesterday = str(date.today() - timedelta(1))
+                        #     # print('yesterday='+str(yesterday))
+                        #     last_login_date = str(last_login.strftime("%Y-%m-%d"))
+                        #     # print('last_login_date='+str(last_login_date))
+                        #     if last_login_date == today:
+                        #         last_login_time = str(last_login.strftime(" at %l:%M:%S %p"))
+                        #         request.session['last_visit'] = 'Today' + last_login_time
+                        #     elif last_login_date == yesterday:
+                        #         last_login_time = str(last_login.strftime(" at %l:%M:%S %p"))
+                        #         request.session['last_visit'] = 'Yesterday' + last_login_time
+                        # else:
+                        #     request.session['last_visit'] = 'welcome'
+                        # # print(request.session['last_visit'])
+                        # login(request, user)
+                        #
+                        if request.POST.get('remember_me'):
+                             request.session['remember_me'] = True
+                        #     print('remember me set')
+                        # else:
+                        #     request.session.set_expiry(0)
+                        #
+                        # request.session['disp_batch'] = None
+                        #return render(request,'reminder/index.html')
+                    else:
+                        # print('not approved')
+                        request.session['delete_user'] = str(user)
+                        request.session['email'] = email
+                        msg = {
+                            'page_title': 'SelfMinder | Not approved',
+                            'title': 'Account not approved'
+                        }
+                        return render(request, 'prompt_pages/not_approved.html', {'message': msg})
+                else:
+                    # print('not valid')
+                    msg = {
+                        'page_title': 'SelfMinder | Login error',
+                        'title': 'Invalid account',
+                        'description': 'Email and password did not match!',
+                    }
+                    return render(request, 'prompt_pages/invalid_account.html', {'message': msg})
+            except forms.ValidationError:
+                error = 'emailerror'
+                # else:
+        # login_form = LoginForm()
+        #error = 'emailerror'
+    if request.session and 'remember_me' in request.session:
+        cusowner = CustomUser.objects.get(user=request.user)
+        notes = Note.objects.filter(user=cusowner.owner)
+        return render(request,'reminder/index.html')
+    return render(request, "registration/login_user.html", {'loginForm': login_form, 'error': error})
+

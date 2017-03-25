@@ -15,7 +15,7 @@
                        <div class="col-sm-8 col-lg-3">
                            <div class="thumbnail">
                                <a href="{% url 'reminder:detail' note.id %}" >
-                                   <center><h2>{{ note.title }}</h2></center>
+                                   <div style="text-align: center;"><h2>{{ note.title }}</h2></div>
                                </a>
                                <div class="caption">
                                    <a href="{% url 'reminder:detail' note.id %}" class="btn btn-primary btn-sm" role="button">View</a>
@@ -83,7 +83,7 @@
             <div class="col-sm-8 col-lg-3">
                 <div class="thumbnail">
                     <a href="{% url 'reminder:detail' note.id %}" >
-                        <center><h2>{{ note.title }}</h2></center>
+                        <div style="text-align: center;"><h2>{{ note.title }}</h2></div>
                     </a>
                     <div class="caption">
                         <a href="{% url 'reminder:detail' note.id %}" class="btn btn-primary btn-sm" role="button">View</a>

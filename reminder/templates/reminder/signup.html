@@ -1,0 +1,77 @@
+{% extends "reminder/base_visitor.html" %}
+
+{% block title %}SelfMinder | Signup{% endblock %}
+{% block body %}
+    <div class="container">
+      <div class="row">
+{#      <div class="login_wrapper">#}
+{#        <div class="animate form login_form">#}
+{#          <section class="login_content">#}
+                        {% if form1 %}
+                            <!-- Display Form -->
+                            <form method="POST" class="form-horizontal" enctype="multipart/form-data">
+                            <h1> Signup </h1>
+                                {% csrf_token %}
+                                {% if error == 'pwd_student' %}
+                                    <div role="alert" class="alert alert-danger alert-dismissible fade in">
+                                        <button aria-label="Close" data-dismiss="alert" class="close" type="button">
+                                            <span aria-hidden="true">×</span>
+                                        </button>
+                                        <strong> Password Mismatch! </strong>
+                                    </div>
+                                {% endif %}
+                                    <div class="form-group {% if field.errors %} has-error{% endif %}">
+                                        {% for field in form1 %}
+                                            {{ field }}
+                                            {% for error in field.errors %}
+                                                <span class="help-block">
+                                                {{ error|escape }}
+                                            </span>
+                                                <br>
+                                            {% endfor %}
+                                        {% endfor %}
+                                    </div>
+                                <br><br>
+                                    <button type="submit" class="save btn btn-lg btn-success" > Create Account </button>
+                            </form>
+                        {% endif %}
+
+            <div class="row">
+                <div class="col-md-10 col-md-offset-1" align="center">
+                    <br><br>
+                    Already a member? <a href="/login"> Login here</a>
+                </div>
+            </div>
+{#          </section>#}
+{#        </div>#}
+{#      </div>#}
+{#          </div>#}
+    </div>
+
+    </div>
+    <style type="text/css">
+        .blink {
+            animation-duration: 1s;
+            animation-name: blink;
+            animation-iteration-count: infinite;
+            animation-direction: alternate;
+            animation-timing-function: ease-in-out;
+        }
+
+        @keyframes blink {
+            0% {
+                color: #0c1fef;
+            }
+            50% {
+                color: #1bffd3;
+            }
+            75% {
+                color: #e08218;
+            }
+            100% {
+                color: #088005;
+            }
+        }
+    </style>
+
+{% endblock %}
