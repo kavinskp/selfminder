@@ -1,0 +1,21 @@
+{% extends 'dashboard/dashboard_header.html' %}
+
+{% block title %}
+    {{ message.page_title }}
+{% endblock %}
+
+{% block content %}
+    <div class="col-md-10 col-md-offset-1">
+        <div class="col-middle">
+            <div class="text-center text-center">
+                <div class="jumbotron">
+                    <div class="container">
+                        <h1>{{ message.title }}</h1>
+                        <h2>{{ message.description }} </h2>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+{% endblock %}

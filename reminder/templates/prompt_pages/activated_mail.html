@@ -1,0 +1,39 @@
+{% extends 'dashboard/dashboard_header.html' %}
+
+{% block title %}GCT | Account activated{% endblock %}
+
+{% block content %}
+    <div class="col-md-10 col-md-offset-1">
+        <div class="col-middle">
+            <div class="text-center text-center">
+                <div class="jumbotron">
+                    <div class="container">
+                        {% if activation_expired %}
+                            <h1>Oops</h1>
+                            <h2>Activation link expired</h2>
+                            <div class="center-block">
+                                <p>
+                                    <a class="btn btn-primary btn-lg " href={% url 'new_activation_link' user_id=id_user %}>Resend Email</a>
+                                </p>
+                            </div>
+                        {% endif %}
+                        {% if already_active %}
+                            <h1>^_^</h1>
+                            <h2>Your account has been already activated</h2>
+                        {% endif %}
+                        {% if not activation_expired and not already_active %}
+                            <h1>Congrats - Few more steps...</h1>
+                            <h2>Your account has been activated. Please login to continue</h2>
+                        {% endif %}
+                            <div class="center-block">
+                                <p>
+                                    <a id="login" class="btn btn-primary btn-lg " href={% url 'login' %}>Login</a>
+                                </p>
+                            </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+{% endblock %}

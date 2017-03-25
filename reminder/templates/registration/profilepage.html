@@ -1,0 +1,116 @@
+{% extends 'reminder/base.html' %}
+
+{% block contents %}
+    <div class="x_panel">
+        <div class="x_title">
+            <h2>
+                <i class="fa fa-info-circle"></i>&nbsp;&nbsp;
+                Profile&nbsp;-&nbsp;{{ user.roll_no }}&nbsp;-&nbsp;{{ user.first_name }}&nbsp;{{ user.middle_name }}&nbsp;{{ user.last_name }}
+            </h2>
+            <div class="clearfix"></div>
+        </div>
+        <div class="x_content">
+            <div class="col-md-4 col-sm-4 col-xs-12 profile_left">
+                <div class="profile_img">
+                    <div id="crop-avatar">
+                        {% load static %}
+                        {% get_media_prefix as MEDIA_ROOT %}
+                        {% if user.gender == "M" %}
+                            <img src={% if user.avatar %}
+                                {{ MEDIA_ROOT }}{{ user.avatar }}{% else %}
+                                "{{ MEDIA_ROOT }}/images/male.png"
+                            {% endif %} alt="No image" height="250px" width="250px"><br/>
+                        {% endif %}
+                        {% if user.gender == "F" %}
+                            <img src={% if user.avatar %}
+                                {{ MEDIA_ROOT }}{{ user.avatar }}{% else %}
+                                "{{ MEDIA_ROOT }}/images/female.png"
+                            {% endif %} alt="No image" height="250px" width="250px"><br/>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-8 col-sm-8 col-xs-12">
+                {% csrf_token %}
+                <table class="table">
+                    <tr>
+
+                        <th><i class="fa fa-user"></i>&nbsp;&nbsp;
+                            Name
+                        </th>
+                        <td>
+                            {{ user.first_name }}&nbsp;{{ user.middle_name }}&nbsp;{{ user.last_name }}
+                        </td>
+                    </tr>
+                    <tr>
+                        <th><i class="fa fa-phone"></i>&nbsp;&nbsp;
+                            Phone No.
+                        </th>
+                        <td>
+                            {{ user.phone_number }}
+                        </td>
+                    </tr>
+                    <tr>
+                        <th><i class="fa fa-envelope"></i>&nbsp;&nbsp;
+                            Email id
+                        </th>
+                        <td>
+                            <a href="mailto:{{ custuser.email }}">{{ custuser.email }}</a>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>
+                            {% if user.gender == "M" %}
+                                <i class="fa fa-mars"></i>&nbsp;&nbsp;
+                            {% endif %}
+                            {% if user.gender == "F" %}
+                                <i class="fa fa-venus"></i>&nbsp;&nbsp;
+                            {% endif %}
+                            Gender
+                        </th>
+                        <td>
+                            {% if user.gender == "M" %}
+                                Male
+                            {% endif %}
+                            {% if user.gender == "F" %}
+                                Female
+                            {% endif %}
+
+                        </td>
+                    </tr>
+                    <tr>
+                        <th><i class="fa fa-calendar"></i>&nbsp;&nbsp;
+                            DOB
+                        </th>
+                        <td>
+                            {{ user.dob }}
+                        </td>
+                    </tr>
+                </table>
+                <div class="col-md-1"></div>
+                {% if request.session.user_type == "student" %}
+                    <div class="col-md-11">
+                        <a href="{% url "update_user" %}">
+                            <button class="save btn btn-lg btn-success">Edit
+                            </button>
+                        </a>
+                    </div>
+                {% endif %}
+                <label class="col-sm-2 control-label"
+                       id={{ field.id_for_label }}>{{ field.label }}</label>
+                <div class="col-sm-9">
+                    {{ field }}
+                    {% for error in field.errors %}
+                        <span class="help-block">
+                                            {{ error|escape }}
+                                        </span>
+                    {% endfor %}
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+    </div>
+    <br/>
+{% endblock %}

@@ -1,0 +1,26 @@
+{% extends 'reminder/base_visitor.html' %}
+
+{% block title %}
+    {{ message.page_title }}
+{% endblock %}
+
+{% block body %}
+    <div class="col-md-10 col-md-offset-1">
+        <div class="col-middle">
+            <div class="text-center text-center">
+                <div class="jumbotron">
+                <div class="container">
+                    <h1>{{ message.title }}</h1>
+                    <p>{{ message.description }} </p>
+                        <div class="center-block">
+                            <p>
+                            <a class="btn btn-primary btn-lg " href={% url 'reminder:login_user' %}>Try Again</a>
+                            </p>
+                        </div>
+                </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+{% endblock %}

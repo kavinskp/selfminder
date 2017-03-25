@@ -1,0 +1,16 @@
+{% extends 'dashboard/dashboard_content.html' %}
+
+{% block title %}
+    {{ message.page_title }}
+{% endblock %}
+
+{% block rightPane %}
+
+         <div role="alert" class="alert alert-success alert-dismissible fade in" align="center">
+             <button aria-label="Close" data-dismiss="alert" class="close" type="button"><span aria-hidden="true">×</span>
+             </button>
+        <h2>{{ message.description }}</h2>
+         </div>
+
+
+{% endblock %}

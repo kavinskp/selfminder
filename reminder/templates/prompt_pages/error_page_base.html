@@ -1,0 +1,33 @@
+{% extends 'dashboard/dashboard_header.html' %}
+
+{% block title %}
+    {{ message.page_title }}
+{% endblock %}
+
+{% block content %}
+    <div class="col-md-10 col-md-offset-1">
+        <div class="col-middle">
+            <div class="text-center text-center">
+                <div class="jumbotron">
+                    <h1>{{ message.title }}</h1>
+                    <p><b> {{ message.deleted_user }} </b>{{ message.description }} </p>
+                </div>
+                {% if message.createnew %}
+                    <h4>
+                        <p class="change_link">Wanna create a new account?
+                            <a href="/signup/" class="to_register"> Create Account </a>
+                        </p>
+                    </h4>
+                {% endif %}
+                {% if message.login %}
+                    <h4>
+                        <p class="change_link"> Do you wanna login?
+                            <a href="{% url 'login' %}" class="to_register"> Login </a>
+                        </p>
+                    </h4>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+{% endblock %}

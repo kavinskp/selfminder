@@ -1,0 +1,59 @@
+{% extends 'reminder/base_visitor.html' %}
+
+{% block title %}
+    {{ message.page_title }}
+{% endblock %}
+
+{% block content %}
+    <div class="col-md-10 col-md-offset-1">
+        <div class="col-middle">
+            <div class="text-center text-center">
+                <div class="jumbotron">
+                    <div class="container">
+                        <h1>{{ message.title }}</h1>
+                        <p>{{ message.description }} </p>
+                        <div class="center-block">
+                            <form method="POST">{% csrf_token %}
+                                <input type="text" value="{{ user }}" name="delete_user" hidden>
+
+                                <!-- Button trigger modal -->
+                                <button type="button" class="btn btn-primary btn-lg" data-toggle="modal"
+                                        data-target="#myModal5">
+                                    Delete My Account
+                                </button>
+
+                                <!-- Modal -->
+                                <div class="modal fade" id="myModal5" tabindex="-1" role="dialog"
+                                     aria-labelledby="myModalLabel7" aria-hidden="true">
+                                    <div class="modal-dialog modal-fade" role="document">
+                                        <div class="modal-content">
+                                            <div class="modal-header">
+                                                <button type="button" class="close" data-dismiss="modal"
+                                                        aria-label="Close">
+                                                    <span aria-hidden="true">&times;</span>
+                                                </button>
+                                                <h4 class="modal-title" id="myModalLabel1" align="left"><b> Account
+                                                    Delete Confirmation </b></h4>
+                                            </div>
+                                            <div class="modal-body">
+                                                <h4 align="center"> This will delete your unverified account </h4>
+                                            </div>
+                                            <div class="modal-footer">
+                                                <button type="button" class="btn btn-secondary" data-dismiss="modal">
+                                                    Close
+                                                </button>
+                                                <a class="save btn btn-lg btn-danger" href={% url 'cancel' %}>Delete
+                                                    Account</a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+{% endblock %}
